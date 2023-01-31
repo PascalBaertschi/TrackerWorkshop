@@ -1,4 +1,3 @@
-""" Simple wrapper such that you don't have to deal with C++/ROOT Interpreter stuff necessary for the "real" script """
 import os, glob
 import ROOT
 import argparse

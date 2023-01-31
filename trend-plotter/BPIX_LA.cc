@@ -43,18 +43,11 @@ TGraph * ReadTxt (const fs::path& file, int lastRun, std::list<int> bad_runs, co
 
     int N = runs.size();
     runs.push_back(lastRun);
-    //auto name = file.stem().c_str();
-    //auto h = new TH1D(name, title, N, runs.data());
-
     auto g = new TGraphErrors(N);
     g->SetTitle(title);
     for (int i = 0; i < N; ++i) {
-        //h->SetBinContent(i, values.at(i));
-        //h->SetBinError  (i, errors.at(i));
         if(std::find(bad_runs.begin(),bad_runs.end(),runs.at(i))!=bad_runs.end()){
 	  continue;};
-        if(values.at(i)>50. or values.at(i)<-30.){
-	  cout << "value is " << values.at(i) << endl;};
         g->SetPoint(i, runs.at(i), values.at(i));
         g->SetPointError(i, 0., errors.at(i));
     }
@@ -129,7 +122,6 @@ int plot (int layer,const std::string var, const std::string dir, const std::str
     std::string Template_textfile = (boost::format("inputs/%1%/%2%_%3%_L%4%_Template.txt") % folder % var % dir % layer).str(); 
     std::string jsonfile = (boost::format("inputs/linesBPix_Layer%1%.json") % layer).str();
     std::string outputfile =(boost::format("plots/%1%/BPix_%2%_%3%_Layer%4%") % folder % var % dir % layer).str();
-    //std::string outputfile =(boost::format("BPix_%1%_%2%_Layer%3%") % var % dir % layer).str();
     char * outputfile_char = new char [outputfile.length()+1];
     std::strcpy(outputfile_char,outputfile.c_str());
 
@@ -155,18 +147,6 @@ int plot (int layer,const std::string var, const std::string dir, const std::str
     hTemp->SetMarkerSize(0.6);
     hTemp->SetFillColorAlpha(kBlue, 0.2);
     
-    //double max_hGen = hGen->GetMaximum();
-    //double max_hTemp = hTemp->GetMaximum();
-    //int y_low;
-    //int y_high;
-    //if(max_hGen>max_hTemp){
-    //  y_low = -abs(max_hGen);
-    //  y_high = abs(max_hGen);}
-    //else{
-    //  y_low = -abs(max_hTemp);
-    //  y_high = abs(max_hTemp);};
-    //int y_low = -30;
-    //int y_high = 80;
     int y_low;
     int y_high;
     std::string direction = "undefined";
@@ -288,10 +268,9 @@ int plot (int layer,const std::string var, const std::string dir, const std::str
 
 int main ()
 {
-    Trend::CMS = "#scale[1.5]{#bf{CMS}} #it{Preliminary}"; // TODO: right before approval
+    //Trend::CMS = "#scale[1.5]{#bf{CMS}} #it{Preliminary}"; // TODO: right before approval
     //Trend::CMS = "#scale[1.5]{#bf{CMS}}"; // TODO: right before CWR
     // otherwise the tool uses by default "CMS Internal"
-    //TFile* f = TFile::Open("BPIX.root","NEW");
     std::string variables[2] = {"mu","sigma"};
     std::string directions[2] = {"x","z"};
     for (int layer = 1; layer < 5; layer++){
@@ -302,6 +281,5 @@ int main ()
         };
       };
     };
-    //f->Close();
     return EXIT_SUCCESS;
 }

@@ -123,7 +123,6 @@ int plot (int disk,const std::string var, const std::string dir, const std::stri
     std::string Generic_textfile = (boost::format("inputs/%1%/%2%_%3%_D%4%_Generic.txt") % folder % var % dir % disk).str(); 
     std::string Template_textfile = (boost::format("inputs/%1%/%2%_%3%_D%4%_Template.txt") % folder % var % dir % disk).str(); 
     std::string outputfile =(boost::format("plots/%1%/FPix_%2%_%3%_D%4%") % folder % var % dir % disk).str();
-    //std::string outputfile =(boost::format("FPix_%1%_%2%_D%3%") % var % dir % disk).str();
     char * outputfile_char = new char [outputfile.length()+1];
     std::strcpy(outputfile_char,outputfile.c_str());
     const Run2Lumi GetLumi("deliveredLumiRun3.txt", firstRun, lastRun);
@@ -148,8 +147,6 @@ int plot (int disk,const std::string var, const std::string dir, const std::stri
     hTemp->SetMarkerSize(0.6);
     hTemp->SetFillColorAlpha(kBlue, 0.2);
 
-    //int y_low = -20;
-    //int y_high = 60;
     int y_low;
     int y_high;
     char * direction = "undefined";
@@ -251,7 +248,6 @@ int main ()
     Trend::CMS = "#scale[1.5]{#bf{CMS}} #it{Preliminary}"; // TODO: right before approval
     //Trend::CMS = "#scale[1.5]{#bf{CMS}}"; // TODO: right before CWR
     // otherwise the tool uses by default "CMS Internal"
-    //TFile* f = TFile::Open("FPIX.root","NEW");
     std::string variables[2] = {"mu","sigma"};
     std::string directions[2] = {"x","z"};
     for (int disk = 1; disk < 4; disk++){

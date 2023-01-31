@@ -33,87 +33,14 @@ Double_t normStud( Double_t *x, Double_t *par5 ) {
   return pk + par5[4];
 };
 
-Double_t StudGaus( Double_t *x, Double_t *par8) {
-  static int nn = 0;
-  nn++;
-  static double dx = 0.1;
-  static double b1 = 0;
-  if( nn == 1 ) b1 = x[0];
-  if( nn == 2 ) dx = x[0] - b1;
-  //--  Mean and width:
-  double xm = par8[0];
-  double t = ( x[0] - xm ) / par8[1];
-  double tt = t*t;
-  //--  exponent:
-  double rn = par8[2];
-  double xn = 0.5 * ( rn + 1.0 );
-  //--  Normalization needs Gamma function:
-  double pk = 0.0;
-  if( rn > 0.0 ) {
-    double pi = 3.14159265358979323846;
-    double aa = dx / par8[1] / sqrt(rn*pi) * TMath::Gamma(xn) / TMath::Gamma(0.5*rn);
-    pk = par8[3] * aa * exp( -xn * log( 1.0 + tt/rn ) );
-  }
-  if (par8[6] == 0) return 1.e30;
-  Double_t arg = (x[0]-par8[5])/par8[6];
-  Double_t res = TMath::Exp(-0.5*arg*arg);
-  return (pk + par8[4]) + (par8[7] * (res/(2.50662827463100024*par8[6]))); //sqrt(2*Pi)=2.50662827463100024    
-}
-
-Double_t doubleStud ( Double_t *x, Double_t *par9){
-  static int nn = 0;
-  nn++;
-  static double dx = 0.1;
-  static double b1 = 0;
-  if( nn == 1 ) b1 = x[0];
-  if( nn == 2 ) dx = x[0] - b1;
-  //--  Mean and width:
-  double xm = par9[0];
-  double t = ( x[0] - xm ) / par9[1];
-  double tt = t*t;
-  //--  exponent:
-  double rn = par9[2];
-  double xn = 0.5 * ( rn + 1.0 );
-  //--  Normalization needs Gamma function:
-  double pk = 0.0;
-  if( rn > 0.0 ) {
-    double pi = 3.14159265358979323846;
-    double aa = dx / par9[1] / sqrt(rn*pi) * TMath::Gamma(xn) / TMath::Gamma(0.5*rn);
-    pk = par9[3] * aa * exp( -xn * log( 1.0 + tt/rn ) );
-  }
-  static int nn_2 = 0;
-  nn_2++;
-  static double dx_2 = 0.1;
-  static double b1_2 = 0;
-  if( nn_2 == 1 ) b1_2 = x[0];
-  if( nn_2 == 2 ) dx_2 = x[0] - b1_2;
-  //--  Mean and width:
-  double xm_2 = par9[5];
-  double t_2 = ( x[0] - xm_2 ) / par9[6];
-  double tt_2 = t_2*t_2;
-  //--  exponent:
-  double rn_2 = par9[7];
-  double xn_2 = 0.5 * ( rn_2 + 1.0 );
-  //--  Normalization needs Gamma function:
-  double pk_2 = 0.0;
-  if( rn_2 > 0.0 ) {
-    double pi = 3.14159265358979323846;
-    double aa_2 = dx_2 / par9[6] / sqrt(rn_2*pi) * TMath::Gamma(xn_2) / TMath::Gamma(0.5*rn_2);
-    pk_2 = par9[8] * aa_2 * exp( -xn_2 * log( 1.0 + tt_2/rn_2 ) );
-  }
-  return pk + par9[4] + pk_2;
-}
-
 
 //----------------------------------------------------------------------
 //
 
-int fittp0(const char* hs , float & sigma_res,float & sigma_res_err , float & mean_res,float & mean_res_err,  TString HV_val, TString Run, string outdir,string fitType, string region, TString file_name, bool doubleTFit = 0) {
+int fittp0(const char* hs , float & sigma_res,float & sigma_res_err , float & mean_res,float & mean_res_err,  TString HV_val, TString Run, string outdir,string fitType, string region, TString file_name) {
   TCanvas* c = new TCanvas("c","c",0,0,800,800); 
   c->Draw();
   const char* fit;
-  if(region=="BPix")doubleTFit = false;
-  if(region=="FPix")doubleTFit = false;
   gROOT->Reset();
   gStyle->SetOptStat(0000);
 
@@ -122,7 +49,6 @@ int fittp0(const char* hs , float & sigma_res,float & sigma_res_err , float & me
   TPad *pad = new TPad("pad","pad",0.2,0.01,0.99,0.99);
   pad->SetBottomMargin(0.18);
   pad->SetLeftMargin(0.15);
-  //gPad->SetLogy();
   cout <<" Created pad for hist"<< hs  <<endl;
   
   TH1 *h = (TH1*)gDirectory->Get(hs);
@@ -135,9 +61,6 @@ int fittp0(const char* hs , float & sigma_res,float & sigma_res_err , float & me
     h->SetMarkerSize(0.8);
      
     h->SetTitle("");
-    
-    //if(region=="FPix")h->Rebin(40);
-    //if(region=="BPix")h->Rebin(2);
     h->Rebin(40);
     TGaxis::SetMaxDigits(3);
     double dx = h->GetBinWidth(1);
@@ -156,129 +79,35 @@ int fittp0(const char* hs , float & sigma_res,float & sigma_res_err , float & me
    
     TF1 *tp0Fcn ;
     TF1 *tp0Fcn_gaus ;
-   
-    if (doubleTFit) {
-      cout << "run double student t fit" << endl;
-      tp0Fcn = new TF1( "double_student_t", doubleStud, x1, x9, 9);
 
-      tp0Fcn->SetParName( 0, "mean" );
-      tp0Fcn->SetParName( 1, "sigma" );
-      tp0Fcn->SetParName( 2, "nu" );
-      tp0Fcn->SetParName( 3, "area" );
-      tp0Fcn->SetParName( 4, "BG" );
-      tp0Fcn->SetParName( 5, "mean" );
-      tp0Fcn->SetParName( 6, "sigma" );
-      tp0Fcn->SetParName( 7, "nu" );
-      tp0Fcn->SetParName( 8, "area" );
-      
-      tp0Fcn->SetParameter(0, xmax);
-      tp0Fcn->SetParameter(1, h->GetRMS());
-      tp0Fcn->SetParameter(2, 10);
-      tp0Fcn->SetParameter(3, h->Integral());
-      tp0Fcn->SetParameter(4, 0);
-      tp0Fcn->SetParameter(5, xmax);
-      tp0Fcn->SetParameter(6, 0.10*h->GetRMS());
-      tp0Fcn->SetParameter(7, 2);
-      tp0Fcn->SetParameter(8, 0.10*h->Integral());
-      
-      tp0Fcn->SetLineWidth(0);
-
-      h->Fit( "double_student_t", "RM", "ep");
-      float chiSquare=0;
-      chiSquare = tp0Fcn->GetChisquare();
-
-      tp0Fcn_gaus = new TF1("student_t_gaussian", StudGaus , x1,x9, 8);
-      tp0Fcn_gaus->SetParName( 0, "mean" );
-      tp0Fcn_gaus->SetParName( 1, "sigma" );
-      tp0Fcn_gaus->SetParName( 2, "nu" );
-      tp0Fcn_gaus->SetParName( 3, "area" );
-      tp0Fcn_gaus->SetParName( 4, "BG" );
-      tp0Fcn_gaus->SetParName( 5, "mean" );
-      tp0Fcn_gaus->SetParName( 6, "sigma" );
-      tp0Fcn_gaus->SetParName( 7, "area" );
-      
-      tp0Fcn_gaus->SetParameter( 0, h->GetMean() ); // peak position                                                                           
-      tp0Fcn_gaus->SetParameter( 1, h->GetRMS()); // width                                                                                                  
-      tp0Fcn_gaus->SetParameter( 2, 2.2 ); // nu                                                                                                                
-      tp0Fcn_gaus->SetParameter( 3, h->Integral() ); // N                                                                                                       
-      tp0Fcn_gaus->SetParameter( 4, bg);
-      tp0Fcn_gaus->SetParameter( 5, h->GetMean() ); // peak position                                                                     
-      tp0Fcn_gaus->SetParameter( 6, 0.01*h->GetRMS() ); // width                                                                                            
-      tp0Fcn_gaus->SetParameter( 7, 0.2*h->Integral()); // nu                                                                                                    
-      tp0Fcn_gaus->SetLineWidth(0);
-      //h->Fit( "student_t_gaussian", "RM", "ep");
-
-      float chiSquare_gaus=0;
-      chiSquare_gaus = tp0Fcn_gaus->GetChisquare();
-
-      tp0Fcn->SetNpx(500);
-      tp0Fcn->SetLineWidth(4);
-      tp0Fcn_gaus->SetLineWidth(4);
-      tp0Fcn_gaus->SetLineColor(kGreen);
-      tp0Fcn->SetLineColor(kGreen);
-
-      //if(chiSquare_gaus<chiSquare){
-      if(0>1){
-	tp0Fcn_gaus->Draw("SAME");
-	  fit = "Student-t + Gaussian fit";
-	  sigma_res =
-	    (tp0Fcn_gaus->GetParameter(7)*tp0Fcn_gaus->GetParameter(6) +
-	     tp0Fcn_gaus->GetParameter(3)*tp0Fcn_gaus->GetParameter(1)) /
-	    (tp0Fcn_gaus->GetParameter(3)+tp0Fcn_gaus->GetParameter(7));
-	  sigma_res_err =
-	    (tp0Fcn_gaus->GetParameter(7)*tp0Fcn_gaus->GetParError(6) +
-	     tp0Fcn_gaus->GetParameter(3)*tp0Fcn_gaus->GetParError(1)) /
-	    (tp0Fcn_gaus->GetParameter(3)+tp0Fcn_gaus->GetParameter(7));
-	  mean_res = tp0Fcn_gaus->GetParameter(0);
-	  mean_res_err= tp0Fcn_gaus->GetParError(0);
-      }else{
-	tp0Fcn->Draw("SAME");
-	  fit = "double Student-t fit";
-	  sigma_res = 
-	    (tp0Fcn->GetParameter(3)*tp0Fcn->GetParameter(1) +
-	     tp0Fcn->GetParameter(8)*tp0Fcn->GetParameter(6)) /
-	    (tp0Fcn->GetParameter(3)+tp0Fcn->GetParameter(8));
-	  sigma_res_err = 
-	  (tp0Fcn->GetParameter(3)*tp0Fcn->GetParError(1) +
-	     tp0Fcn->GetParameter(8)*tp0Fcn->GetParError(6)) /
-	  (tp0Fcn->GetParameter(3)+tp0Fcn->GetParameter(8));
-	  mean_res= tp0Fcn->GetParameter(0);
-	  mean_res_err= tp0Fcn->GetParError(0);
-      }
-      
-    } else {
-      cout << "student t fit" << endl;
-      tp0Fcn = new TF1( "tp0Fcn", normStud, x1, x9, 5 );
-      fit = "Student-t fit";
-      tp0Fcn->SetParName( 0, "mean" );
-      tp0Fcn->SetParName( 1, "sigma" );
-      tp0Fcn->SetParName( 2, "nu" );
-      tp0Fcn->SetParName( 3, "area" );
-      tp0Fcn->SetParName( 4, "BG" );
-      
-      tp0Fcn->SetNpx(500);
-      tp0Fcn->SetLineWidth(4);
-      tp0Fcn->SetLineColor(kGreen);
-      tp0Fcn->SetLineColor(kGreen);
-      
-      // set start values for some parameters:
-
-      tp0Fcn->SetParameter( 0, 0.);//xmax ); // peak position
-      tp0Fcn->SetParameter( 1, 4*dx ); // width
-      tp0Fcn->SetParameter( 2, 2.2 ); // nu
-      tp0Fcn->SetParameter( 3, nn ); // N
-      tp0Fcn->SetParameter( 4, bg );
-      h->Fit( "tp0Fcn", "R", "ep" );
-      // h->Fit("tp0Fcn","V+","ep");
-
-      sigma_res= tp0Fcn->GetParameter(1);
-      sigma_res_err= tp0Fcn->GetParError(1);
-      mean_res= tp0Fcn->GetParameter(0);
-      mean_res_err= tp0Fcn->GetParError(0);
-      
-      std::cout <<  hs << ": mean " <<mean_res << " +-"  << mean_res_err   << " sigma "<< sigma_res << " +-"  << sigma_res_err  <<std::endl;
-    }
+    cout << "student t fit" << endl;
+    tp0Fcn = new TF1( "tp0Fcn", normStud, x1, x9, 5 );
+    fit = "Student-t fit";
+    tp0Fcn->SetParName( 0, "mean" );
+    tp0Fcn->SetParName( 1, "sigma" );
+    tp0Fcn->SetParName( 2, "nu" );
+    tp0Fcn->SetParName( 3, "area" );
+    tp0Fcn->SetParName( 4, "BG" );
     
+    tp0Fcn->SetNpx(500);
+    tp0Fcn->SetLineWidth(4);
+    tp0Fcn->SetLineColor(kGreen);
+    tp0Fcn->SetLineColor(kGreen);
+    
+    // set start values for some parameters:
+    
+    tp0Fcn->SetParameter( 0, 0.);//xmax ); // peak position
+    tp0Fcn->SetParameter( 1, 4*dx ); // width
+    tp0Fcn->SetParameter( 2, 2.2 ); // nu
+    tp0Fcn->SetParameter( 3, nn ); // N
+    tp0Fcn->SetParameter( 4, bg );
+    h->Fit( "tp0Fcn", "R", "ep" );
+
+    sigma_res= tp0Fcn->GetParameter(1);
+    sigma_res_err= tp0Fcn->GetParError(1);
+    mean_res= tp0Fcn->GetParameter(0);
+    mean_res_err= tp0Fcn->GetParError(0);
+
     std::cout << "=== FIT RESULT === " <<  hs << ": mean " <<mean_res << " +-"  << mean_res_err   << " sigma "<< sigma_res << " +-"  << sigma_res_err  <<std::endl;
     std::cout << "*************"<<std::endl;
 
