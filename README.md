@@ -60,18 +60,6 @@ The trend plotter (https://gitlab.cern.ch/paconnor/trend-plotter) is used. First
  g++ -g -Wall -O3 -std=c++1z -fPIC -DDEBUG $(root-config --cflags) -shared Trend.cc Trend.h $(root-config --libs) -o libTrend.so
 ```
 
-optional exercise:
-
-For the trend plots the lumi per run is required. First one needs to get the luminosity of all 2022 runs using brilcalc. If you are not familiar with brilcalc follow the setup here: http://opendata.cern.ch/docs/cms-guide-luminosity-calculation
-```
-brilcalc lumi --amodetag PROTPHYS -u /fb --normtag /cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_BRIL.json --begin "01/01/22 00:00:00" --end "12/31/22 23:59:59" --output-style csv > stable2022.csv
-```
-The ``stable2022.csv`` file is also provided. In order to get a more suitable format ``skimLumiFile.py`` can be used:
-
-``
-python skimLumiFile.py --inputFiles stable2022.csv --outputFile deliveredLumiRun3.txt`--lumiType delivered
-``
-
 Compile the code with:
 ```
 make FPIX_LA
@@ -83,3 +71,16 @@ Then the trend plots for FPIX or BPIX can be run with:
 ./FPIX_LA
 ./BPIX_LA
 ```
+
+
+optional exercise:
+
+For the trend plots the lumi per run is required. First one needs to get the luminosity of all 2022 runs using brilcalc. If you are not familiar with brilcalc follow the setup here: http://opendata.cern.ch/docs/cms-guide-luminosity-calculation
+```
+brilcalc lumi --amodetag PROTPHYS -u /fb --normtag /cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_BRIL.json --begin "01/01/22 00:00:00" --end "12/31/22 23:59:59" --output-style csv > stable2022.csv
+```
+The ``stable2022.csv`` file is also provided. In order to get a more suitable format ``skimLumiFile.py`` can be used:
+
+``
+python skimLumiFile.py --inputFiles stable2022.csv --outputFile deliveredLumiRun3.txt`--lumiType delivered
+``
