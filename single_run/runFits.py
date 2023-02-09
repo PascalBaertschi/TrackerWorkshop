@@ -61,7 +61,6 @@ if __name__ == "__main__":
     argumentparser = argparse.ArgumentParser(description='Python wrapper for FitAndPlot.C',formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     argumentparser.add_argument('-i', '--input', action='store', type=str, help="path to input file", default ="", required=False)
     argumentparser.add_argument('-r', '--run', action='store', type=str, default="")
-    argumentparser.add_argument('-o', '--output', action='store', type=str)
     
     ROOT.gROOT.SetBatch(ROOT.kTRUE)
 
